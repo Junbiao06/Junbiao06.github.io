@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get a signature</title>
+  <link rel="icon" href="https://fav.farm/🔥" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>电子签名板📋</h1>
+    <h2>支持pc和移动端</h2>
+    <canvas id="draw" width="800" height="350"></canvas>
+    <div id="saveBtn">save</div>
+  </div>
+  <script>
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = 'black';
+
+    let isDrawing = false;
+    let lateX = 0;
+    let lateY = 0;
+    const getMousePos = function (e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+      return [x, y];
+    }
+    const draw = function (e) {
+      const [x, y] = getMousePos(e);
+      if (!isDrawing) return;
+      ctx.beginPath();
+      ctx.moveTo(lateX, lateY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      [lateX, lateY] = [x, y];
+      hue++;
+    }
+
+    const updateLocation = function (e) {
+      isDrawing = true;
+      [lateX, lateY] = getMousePos(e)
+    }
+
+
+    canvas.addEventListener('mousemove', draw)
+    canvas.addEventListener('mousedown', updateLocation)
+    canvas.addEventListener('mouseup', () => isDrawing = false)
+    canvas.addEventListener('mouseout', () => isDrawing = false)
+
+
+
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      isDrawing = true;
+      lateX = touch.clientX - canvas.getBoundingClientRect().left;
+      lateY = touch.clientY - canvas.getBoundingClientRect().top;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!isDrawing) return;
+      const touch = e.touches[0];
+      const x = touch.clientX - canvas.getBoundingClientRect().left;
+      const y = touch.clientY - canvas.getBoundingClientRect().top;
+      ctx.beginPath();
+      ctx.moveTo(lateX, lateY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      [lateX, lateY] = [x, y];
+    });
+
+    canvas.addEventListener('touchend', () => isDrawing = false);
+    canvas.addEventListener('touchcancel', () => isDrawing = false);
+
+
+    document.querySelector('#saveBtn').addEventListener('click', () => {
+      const dataURL = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = 'signature.png';
+      link.click();
+    });
+  </script>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #333;
+      /* 页面背景为暗灰色，可改为canvas背景颜色 */
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      /* 上中下 */
+      align-items: center;
+      height: 90vh;
+      /* 整体高度占屏幕90% */
+      width: 90vw;
+      /* 宽度占屏幕90% */
+    }
+
+    h1 {
+      color: #fff;
+      margin: 0;
+      text-align: center;
+      font-size: 2rem;
+      letter-spacing: 0.05%;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+
+    h2 {
+      color: #fff;
+    }
+
+    canvas {
+      background-color: rgb(255, 231, 221);
+      width: 80%;
+      height: auto;
+      max-height: 60vh;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #saveBtn {
+      width: 120px;
+      height: 50px;
+      background-color: rgb(3, 222, 109);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+
+</body>
+
+</html>
